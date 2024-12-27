@@ -16,7 +16,8 @@ CORS(app)  # Enable CORS for all routes
 genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
 
 # Initialize the model and document processor
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('gemini-2.0-flash-exp')
+
 doc_processor = DocumentProcessor(
     source_dir="../data/source_files",
     db_dir="../data/vector_db"
@@ -55,19 +56,12 @@ def chat():
         # Get relevant document chunks
         relevant_docs = doc_processor.query_similar(user_message)
         
-        # Print chunks for debugging
-        print("\nRelevant chunks found:")
-        for i, doc in enumerate(relevant_docs, 1):
-            print(f"\n[{i}] From {doc['source']}, Page {doc['page']}:")
-            print("-" * 50)
-            print(doc['content'])
-            print("-" * 50)
         
         # Format context with citations
         context_parts = []
         citations = []  # Store citations for frontend
         for i, doc in enumerate(relevant_docs, 1):
-            context_parts.append(f"[{i}] From {doc['source']}, Page {doc['page']}:\n{doc['content']}")
+            context_parts.append(f"From {doc['source']}, Page {doc['page']}:\n{doc['content']}")
             citations.append({
                 'id': i,
                 'source': doc['source'],
@@ -76,11 +70,28 @@ def chat():
             })
         context = "\n\n".join(context_parts)
         
+        # Print final context for debugging
+        print("\nFinal context being passed to model:")
+        print("=" * 80)
+        print(context)
+        print("=" * 80)
+        
         def generate():
             # Generate streaming response using Gemini
-            prompt = f"""Please provide a response using the following context and format it using markdown syntax where appropriate. If the context doesn't help answer the question, just respond based on your general knowledge.
+            prompt = f"""You are a helpful assistant that provides information based on the given context. Your responses should be clear, accurate, and well-structured using markdown syntax where appropriate.
 
-When you use information from the context, please cite the source using the number in brackets [1], [2], etc.
+When using information from the context, you MUST cite your sources using numbered citations [1], [2], etc. Follow these citation rules:
+1. Do not include the sources/chunks in your citations that you didn't cite in your response. Only cite the sources/chunks that you used in your response.
+2. You will be provided 3 sources/chunks of context. If the third source/chunk is the only one you used, you MUST cite it as [1]. It is not [3].
+3. End your response with a "References:" section that lists all cited sources
+4. Each reference MUST be on a new line and follow this EXACT format: [N] filename.pdf, Page X
+
+Example response:
+The house was built in 2019 [1].
+
+References:
+[1] inspection_report.pdf, Page 1
+
 
 Context:
 {context}
@@ -88,18 +99,34 @@ Context:
 User Question:
 {user_message}
 
-Please provide a well-structured response with appropriate citations."""
+Remember:
+- Keep your response concise and focused
+- Each reference MUST be on its own line
+- Each reference MUST follow the exact format: [N] filename.pdf, Page X
+- Do not include any extra text or formatting in the References section"""
 
             response = model.generate_content(prompt, stream=True)
             
             # Send citations first
             yield f"data: {json.dumps({'citations': citations})}\n\n"
             
+            # Buffer to accumulate response and ensure proper formatting
+            response_buffer = ""
+            
             for chunk in response:
                 if chunk.text:
+                    response_buffer += chunk.text
                     # Format the data as SSE
                     data = json.dumps({'chunk': chunk.text})
                     yield f"data: {data}\n\n"
+            
+            # If response doesn't end with References section, add it
+            if 'References:' not in response_buffer:
+                references = "\n\nReferences:\n"
+                for citation in citations:
+                    references += f"[{citation['id']}] {citation['source']}, page {citation['page']}\n"
+                data = json.dumps({'chunk': references})
+                yield f"data: {data}\n\n"
             
             # Send a completion message
             yield "data: [DONE]\n\n"

@@ -1,34 +1,34 @@
 # Store original location
-$originalLocation = Get-Location
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+$projectRoot = Split-Path -Parent $scriptPath
 
 # Build frontend
 Write-Host "Building frontend..." -ForegroundColor Green
-Set-Location "$originalLocation/frontend"
-npm run build
+npm --prefix "$projectRoot/frontend" run build
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Frontend build failed! Please fix the errors and try again." -ForegroundColor Red
-    Set-Location $originalLocation
     exit $LASTEXITCODE
 }
 
 # Only proceed with the rest if build was successful
-if (Test-Path dist) {
+$distPath = "$projectRoot/frontend/dist"
+if (Test-Path $distPath) {
     # Clean up old dist in backend if it exists
     Write-Host "Cleaning up old build..." -ForegroundColor Green
-    if (Test-Path "$originalLocation/backend/static") {
-        Remove-Item -Recurse -Force "$originalLocation/backend/static"
+    $staticPath = "$scriptPath/static"
+    if (Test-Path $staticPath) {
+        Remove-Item -Recurse -Force $staticPath
     }
 
     # Move dist to backend/static
     Write-Host "Moving build to backend..." -ForegroundColor Green
-    Move-Item -Force dist "$originalLocation/backend/static"
+    Move-Item -Force $distPath $staticPath
 
-    # Start the backend server from original location
+    # Start the backend server
     Write-Host "Starting server..." -ForegroundColor Green
-    python "$originalLocation/backend/app.py"
+    python app.py
 } else {
     Write-Host "Dist folder not found! Build may have failed." -ForegroundColor Red
-    Set-Location $originalLocation
     exit 1
-}
+} 

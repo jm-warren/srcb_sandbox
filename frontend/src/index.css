@@ -2,22 +2,22 @@
 
 :root {
   /* Base colors */
-  --app-bg: #1A1B1E;
-  --container-bg: #25262B;
-  --header-bg: #2C2E33;
-  --chat-bg: #1F2023;
-  --input-bg: #25262B;
-  --border-color: #2C2E33;
+  --app-bg: #f8f9fa;
+  --container-bg: #ffffff;
+  --header-bg: #f1f3f5;
+  --chat-bg: #f8f9fa;
+  --input-bg: #ffffff;
+  --border-color: #e9ecef;
   
   /* Message colors */
-  --message-bot-bg: #2C2E33;
+  --message-bot-bg: #f8f9fa;
   --message-user-bg: #228BE6;
   --icon-bg: rgba(76, 110, 245, 0.1);
   
   /* Text colors */
-  --text-bright: #FFFFFF;
+  --text-bright: #1a1b1e;
   --text-primary: #C1C2C5;
-  --text-secondary: #909296;
+  --text-secondary: #868e96;
 
   /* Input colors */
   --input-text: #FFFFFF;
@@ -75,4 +75,17 @@ input::placeholder {
   30% {
     transform: translateY(-4px);
   }
+}
+
+/* Dark theme overrides */
+[data-mantine-color-scheme="dark"] {
+  --app-bg: #1a1b1e;
+  --container-bg: #25262b;
+  --border-color: #373a40;
+  --text-bright: #ffffff;
+  --text-secondary: #909296;
+  --header-bg: #25262b;
+  --chat-bg: #1a1b1e;
+  --input-bg: #25262b;
+  --message-bot-bg: #25262b;
 }
