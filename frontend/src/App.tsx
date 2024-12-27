@@ -1,5 +1,5 @@
 import { MantineProvider, AppShell, Container } from '@mantine/core';
-import ChatInterface from './components/ChatInterface';
+import ChatInterface from './components/chat/ui/ChatInterface';
 import '@mantine/core/styles.css';
 
 function App() {

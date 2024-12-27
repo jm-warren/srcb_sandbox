@@ -10,6 +10,7 @@ import {
   ActionIcon,
   rem,
   Title,
+  Popover,
 } from '@mantine/core';
 import { IconSend, IconRobot, IconUser } from '@tabler/icons-react';
 import ReactMarkdown from 'react-markdown';
@@ -20,6 +21,14 @@ interface Message {
   text: string;
   isBot: boolean;
   timestamp: Date;
+  citations?: Citation[];
+}
+
+interface Citation {
+  id: number;
+  source: string;
+  page: number;
+  content: string;
 }
 
 export default function ChatInterface() {
@@ -49,7 +58,7 @@ export default function ChatInterface() {
       };
       setMessages(prev => [...prev, tempBotMessage]);
 
-      const response = await fetch('http://localhost:5000/chat', {
+      const response = await fetch('/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +97,11 @@ export default function ChatInterface() {
                 const newMessages = [...prev];
                 const lastMessage = newMessages[newMessages.length - 1];
                 if (lastMessage.isBot) {
-                  lastMessage.text += parsedData.chunk;
+                  if (parsedData.citations) {
+                    lastMessage.citations = parsedData.citations;
+                  } else if (parsedData.chunk) {
+                    lastMessage.text += parsedData.chunk;
+                  }
                 }
                 return newMessages;
               });
@@ -216,6 +229,62 @@ export default function ChatInterface() {
                               >
                                 {children}
                               </code>
+                            );
+                          },
+                          // Text content with citations
+                          text: ({children}) => {
+                            if (typeof children !== 'string') return <>{children}</>;
+                            const parts = children.split(/(\[\d+\])/g);
+                            return (
+                              <>
+                                {parts.map((part, index) => {
+                                  const citationMatch = part.match(/\[(\d+)\]/);
+                                  if (!citationMatch) return part;
+                                  
+                                  const citationId = parseInt(citationMatch[1]);
+                                  const citation = message.citations?.find(c => c.id === citationId);
+                                  if (!citation) return part;
+                                  
+                                  return (
+                                    <Popover key={index} width={400} position="top" withArrow shadow="md">
+                                      <Popover.Target>
+                                        <Text 
+                                          component="span" 
+                                          c="blue.5" 
+                                          style={{ 
+                                            cursor: 'pointer', 
+                                            textDecoration: 'underline',
+                                            display: 'inline-block',
+                                          }}
+                                        >
+                                          {part}
+                                        </Text>
+                                      </Popover.Target>
+                                      <Popover.Dropdown p="md">
+                                        <Stack gap="md">
+                                          <Group justify="space-between" align="center">
+                                            <Text fw={500} size="sm">Source: {citation.source}</Text>
+                                            <Text size="xs" c="dimmed">Page {citation.page}</Text>
+                                          </Group>
+                                          <Paper 
+                                            withBorder 
+                                            p="sm" 
+                                            style={{ 
+                                              backgroundColor: 'var(--container-bg)',
+                                              maxHeight: '200px',
+                                              overflow: 'auto'
+                                            }}
+                                          >
+                                            <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
+                                              {citation.content}
+                                            </Text>
+                                          </Paper>
+                                        </Stack>
+                                      </Popover.Dropdown>
+                                    </Popover>
+                                  );
+                                })}
+                              </>
                             );
                           },
                           p: ({children}) => (
