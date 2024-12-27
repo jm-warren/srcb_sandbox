@@ -1,0 +1,78 @@
+@import '@mantine/core/styles.css';
+
+:root {
+  /* Base colors */
+  --app-bg: #1A1B1E;
+  --container-bg: #25262B;
+  --header-bg: #2C2E33;
+  --chat-bg: #1F2023;
+  --input-bg: #25262B;
+  --border-color: #2C2E33;
+  
+  /* Message colors */
+  --message-bot-bg: #2C2E33;
+  --message-user-bg: #228BE6;
+  --icon-bg: rgba(76, 110, 245, 0.1);
+  
+  /* Text colors */
+  --text-bright: #FFFFFF;
+  --text-primary: #C1C2C5;
+  --text-secondary: #909296;
+
+  /* Input colors */
+  --input-text: #FFFFFF;
+  --input-placeholder: #909296;
+  --input-border-focus: #228BE6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100vh;
+  width: 100%;
+  background-color: var(--app-bg);
+  color: var(--text-primary);
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Input placeholder styling */
+input::placeholder {
+  color: var(--input-placeholder) !important;
+  opacity: 0.7;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+@keyframes bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+}

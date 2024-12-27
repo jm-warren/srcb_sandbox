@@ -1,0 +1,11 @@
+flask
+python-dotenv
+google-generativeai
+flask-cors
+pypdf
+langchain
+chromadb
+tiktoken
+langchain-community
+langchain-google-genai
+

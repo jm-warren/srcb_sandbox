@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Data folders
+data/source_files/*
+!data/source_files/.gitkeep
+data/vector_db/*
+!data/vector_db/.gitkeep
+
 # C extensions
 *.so
 
