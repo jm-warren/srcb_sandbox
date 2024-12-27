@@ -8,6 +8,7 @@ data/source_files/*
 !data/source_files/.gitkeep
 data/vector_db/*
 !data/vector_db/.gitkeep
+!data/vector_db
 
 # C extensions
 *.so

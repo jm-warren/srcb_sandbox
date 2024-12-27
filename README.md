@@ -37,6 +37,10 @@ A modern, responsive chatbot application that uses Retrieval-Augmented Generatio
 - Python 3.8+
 - Node.js 16+
 - Google Cloud API key with Gemini API access
+- C++ Build Tools (Required for some Python packages)
+  - **Windows**: Install "Desktop development with C++" workload from Visual Studio Build Tools
+  - **Linux**: `sudo apt-get install build-essential`
+  - **macOS**: Install Xcode Command Line Tools: `xcode-select --install`
 
 ### Backend Setup
 
