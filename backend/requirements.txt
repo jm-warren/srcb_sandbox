@@ -8,4 +8,4 @@ chromadb
 tiktoken
 langchain-community
 langchain-google-genai
-
+PyPDF2
