@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from flask_cors import CORS
 import json
-import PyPDF2
+import pypdf
 
 # Load environment variables
 load_dotenv()
@@ -39,7 +39,7 @@ def chat():
         
         pdf_path = "../data/source_files/inspection_report.pdf"
         with open(pdf_path, 'rb') as pdf_file:
-            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            pdf_reader = pypdf.PdfReader(pdf_file)
             context = "\n".join(page.extract_text() for page in pdf_reader.pages)
         
         def generate():
